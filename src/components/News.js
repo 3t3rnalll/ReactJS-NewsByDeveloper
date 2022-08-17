@@ -126,18 +126,41 @@ export class News extends Component {
         super();
         this.state = {
             articles: this.articles,
-            loading: false
+            loading: false,
+            page: 1
         };
     }
 
     async componentDidMount() {
-        let url = 'https://newsapi.org/v2/top-headlines?q=a&pageSize=9&apiKey=3fdb4db4dcaa4cb19d2fe2121b529f65';
+        let url = 'https://newsapi.org/v2/top-headlines?q=war&page=1&pageSize=20&apiKey=3fdb4db4dcaa4cb19d2fe2121b529f65';
         let data = await fetch(url);
         let parseData = await data.json();
-        // console.log(data);
-        console.log(parseData.articles);
-        this.setState({ articles: parseData.articles })
+        this.setState({
+            articles: parseData.articles,
+            totalArticles: parseData.totalResults
+        })
 
+    }
+
+    handlePrevBtn = async () => {
+        let url = `https://newsapi.org/v2/top-headlines?q=war&page=${this.state.page - 1}&pageSize=20&apiKey=3fdb4db4dcaa4cb19d2fe2121b529f65`;
+        let data = await fetch(url);
+        let parseData = await data.json();
+        this.setState({
+            page: this.state.page - 1,
+            articles: parseData.articles
+        })
+        console.log('prev');
+    }
+    handleNextBtn = async () => {
+        let url = `https://newsapi.org/v2/top-headlines?q=war&page=${this.state.page + 1}&pageSize=20&apiKey=3fdb4db4dcaa4cb19d2fe2121b529f65`;
+        let data = await fetch(url);
+        let parseData = await data.json();
+        this.setState({
+            page: this.state.page + 1,
+            articles: parseData.articles
+        })
+        console.log(Math.ceil(this.state.totalArticles / 20));
     }
 
     render() {
@@ -152,6 +175,11 @@ export class News extends Component {
                         </div>
                     })}
 
+                </div>
+                <div className="container d-flex justify-content-center">
+                    <button disabled={this.state.page <= 1} type="button" onClick={this.handlePrevBtn} className="btn btn-info mx-2 my-2 ">prev</button>
+                    <h5 style={{ margin: '12px 6px' }}>{this.state.page}</h5>
+                    <button disabled={Math.ceil(this.state.totalArticles / 20) < this.state.page + 1} type="button" className="btn btn-info mx-2 my-2" onClick={this.handleNextBtn}>Next</button>
                 </div>
             </div>
         )
