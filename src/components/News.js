@@ -130,6 +130,15 @@ export class News extends Component {
         };
     }
 
+    async componentDidMount() {
+        let url = 'https://newsapi.org/v2/top-headlines?q=a&pageSize=9&apiKey=3fdb4db4dcaa4cb19d2fe2121b529f65';
+        let data = await fetch(url);
+        let parseData = await data.json();
+        // console.log(data);
+        console.log(parseData.articles);
+        this.setState({ articles: parseData.articles })
+
+    }
 
     render() {
         return (
