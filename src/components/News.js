@@ -15,66 +15,57 @@ export class News extends Component {
         country: propTypes.string,
         pageSize: propTypes.number,
         category: propTypes.string,
-
     }
-
-    constructor() {
-        super();
+    capitalizeFirstLetter = (str) => {
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+    constructor(props) {
+        super(props);
         this.state = {
             articles: this.articles,
             loading: false,
             page: 1
         };
+        document.title = `${this.capitalizeFirstLetter(this.props.category)} - NewsByDeveloper`;
     }
 
-    async componentDidMount() {
-        let url = `https://newsapi.org/v2/top-headlines?q=a&language=en&page=1&category=${this.props.category}&pageSize=${this.props.pageSize}&country=${this.props.country}&apiKey=3fdb4db4dcaa4cb19d2fe2121b529f65`;
+    async updateNews() {
+        let url = `https://newsapi.org/v2/top-headlines?q=a&language=en&page=${this.state.page}&category=${this.props.category}&pageSize=${this.props.pageSize}&country=${this.props.country}&apiKey=3fdb4db4dcaa4cb19d2fe2121b529f65`;
         this.setState({ loading: true })
         let data = await fetch(url);
         let parseData = await data.json();
         this.setState({
+            page: this.state.page,
             articles: parseData.articles,
             totalArticles: parseData.totalResults,
             loading: false
         })
+    }
 
+    async componentDidMount() {
+        this.updateNews();
     }
 
     handlePrevBtn = async () => {
-        let url = `https://newsapi.org/v2/top-headlines?q=a&language=en&page=${this.state.page - 1}&category=${this.props.category}&pageSize=${this.props.pageSize}&country=${this.props.country}&apiKey=3fdb4db4dcaa4cb19d2fe2121b529f65`;
-        this.setState({ loading: true })
-        let data = await fetch(url);
-        let parseData = await data.json();
-        this.setState({
-            page: this.state.page - 1,
-            articles: parseData.articles,
-            loading: false
-        })
-        console.log('prev');
+        this.setState({ page: --this.state.page });
+        this.updateNews();
     }
     handleNextBtn = async () => {
-        let url = `https://newsapi.org/v2/top-headlines?q=a&language=en&page=${this.state.page + 1}&category=${this.props.category}&pageSize=${this.props.pageSize}&country=${this.props.country}&apiKey=3fdb4db4dcaa4cb19d2fe2121b529f65`;
-        this.setState({ loading: true })
-        let data = await fetch(url);
-        let parseData = await data.json();
-        this.setState({
-            page: this.state.page + 1,
-            articles: parseData.articles,
-            loading: false
-        })
-        // console.log(Math.ceil(this.state.totalArticles / 20));
+
+        this.setState({ page: ++this.state.page });
+        this.updateNews();
     }
 
     render() {
         return (
             <div className='container my-4'>
-                <h2>News -- Top Headlines</h2>
+                <h2>News -- Top {this.capitalizeFirstLetter(this.props.category)} Headlines</h2>
                 <hr className='my-4' />
                 {this.state.loading && <Spinner />}
                 <div className="row">
                     {!this.state.loading && this.state.articles.map((element) => {
                         return <div className="col-md-4" key={element.url}>
-                            <NewsItem title={element.title} description={element.description} url={element.url} urlToImage={element.urlToImage} />
+                            <NewsItem title={element.title} description={element.description} url={element.url} urlToImage={element.urlToImage} date={element.publishedAt} author={element.author} source={element.source.name} />
                         </div>
                     })}
 
