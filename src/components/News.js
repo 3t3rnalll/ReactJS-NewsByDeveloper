@@ -32,8 +32,10 @@ export class News extends Component {
     }
 
     async updateNews() {
+        this.props.setProgress(0);
         let url = `https://newsapi.org/v2/top-headlines?q=a&language=en&page=${this.state.page}&category=${this.props.category}&pageSize=${this.props.pageSize}&country=${this.props.country}&apiKey=3fdb4db4dcaa4cb19d2fe2121b529f65`;
         let data = await fetch(url);
+        this.props.setProgress(60);
         let parseData = await data.json();
         this.setState({
             page: this.state.page,
@@ -41,6 +43,10 @@ export class News extends Component {
             totalArticles: parseData.totalResults,
             loading: false,
         })
+        this.props.setProgress(100);
+        // setTimeout(() => {
+        //     this.props.setProgress(100);
+        // }, 500);
     }
 
     async componentDidMount() {
